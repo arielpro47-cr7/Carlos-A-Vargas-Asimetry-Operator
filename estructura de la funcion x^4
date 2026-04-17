@@ -1,0 +1,11 @@
+import sympy as sp
+from vargas_operator import aplicar_operador_vargas
+
+x = sp.symbols('x')
+f = x**4
+
+asimetria, derivada = aplicar_operador_vargas(f, x)
+
+print("--- ANALISIS POLINOMIAL ---")
+print(f"Función: {f}")
+print(f"Información de vecindad extraída: {asimetria}")
