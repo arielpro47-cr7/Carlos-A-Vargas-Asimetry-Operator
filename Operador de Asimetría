@@ -1,0 +1,22 @@
+import sympy as sp
+
+def aplicar_operador_vargas(f_expr, var, orden=5):
+    """
+    Implementación universal del Operador de Asimetría de Vargas.
+    Retorna: (Información de Vecindad/Asimetría, Tendencia Clásica/Derivada)
+    """
+    b = sp.symbols('b', real=True)
+    
+    # 1. Extensión al plano complejo f(x + ib)
+    f_compleja = f_expr.subs(var, var + sp.I * b).series(b, 0, orden).removeO()
+    
+    # 2. Aplicación del cociente incremental complejo (Operador Ariel)
+    resultado_op = sp.simplify((f_compleja - f_expr) / (sp.I * b))
+    
+    # 3. Separación por paridad
+    # Parte Real: Términos pares (Curvatura, Memoria de escala)
+    # Parte Imaginaria: Términos impares (Convergen a la derivada clásica)
+    asimetria = sp.re(resultado_op)
+    derivada_trend = sp.im(resultado_op)
+    
+    return asimetria, derivada_trend
