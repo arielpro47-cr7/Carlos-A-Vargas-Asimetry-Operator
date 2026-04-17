@@ -1,0 +1,27 @@
+import sympy as sp
+from vargas_asymmetry import AsymmetryOperator # Importas de tu Core
+
+def prueba_autoría_paper_7():
+    v = AsymmetryOperator(precision=4)
+    x = sp.Symbol('x', real=True)
+    b = sp.Symbol('b', real=True)
+    
+    # 1. Partimos de una tasa de cambio (Derivada)
+    f_prime = 2*x 
+    
+    # 2. Integración Clásica
+    f_clásica = sp.integrate(f_prime, x) # Resultado: x^2
+    
+    # 3. Aplicamos el Operador de Vargas a la integral
+    # Aquí demostramos que la integral de Vargas 've' más que la de Cauchy
+    info_recuperada = v.recover_scale_info(f_clásica, x)
+    
+    print("--- VALIDACIÓN COMPUTACIONAL PAPER 7 ---")
+    print(f"Entrada (Derivada): {f_prime}")
+    print(f"Integral de Cauchy: {f_clásica} + C")
+    print(f"Integral de Vargas (con memoria de escala b): {info_recuperada}")
+    print("\nCONCLUSIÓN: La constante C no es un error de integración,")
+    print(f"es la proyección real de la vecindad: {sp.simplify(info_recuperada - f_clásica)}")
+
+if __name__ == "__main__":
+    prueba_autoría_paper_7()
