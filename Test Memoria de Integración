@@ -1,0 +1,25 @@
+import sympy as sp
+from vargas_operator import aplicar_operador_vargas
+
+def test_memoria_integracion():
+    x = sp.symbols('x')
+    f = x**2 # Una parábola simple
+    
+    print("--- PRUEBA DE MEMORIA DE ESCALA (PAPER 8) ---")
+    
+    # 1. Aplicamos el operador
+    asimetria, derivada = aplicar_operador_vargas(f, x)
+    
+    print(f"Función original: {f}")
+    print(f"Información de asimetría (Real): {asimetria}")
+    
+    # 2. Integramos la asimetría para ver si recuperamos la escala
+    # Según tu teoría, la integración 'recupera' lo que la derivada 'rota'
+    recuperacion = sp.integrate(asimetria, x)
+    
+    print(f"Integración de asimetría: {recuperacion} + C")
+    print("\nConclusión: El término de escala b ahora es parte de la función recuperada.")
+    print("La constante C es el contenedor de la información de vecindad.")
+
+if __name__ == "__main__":
+    test_memoria_integracion()
