@@ -1,0 +1,48 @@
+import sympy as sp
+
+def vargas_analyzer():
+    """
+    HERRAMIENTA UNIVERSAL DE ASIMETRÍA DE VARGAS
+    Permite ingresar cualquier función y analizar su estructura de vecindad.
+    """
+    print("=== Herramienta Universal: Operador de Asimetría de Vargas ===")
+    
+    # 1. Definir símbolos
+    x = sp.Symbol('x', real=True)
+    b = sp.Symbol('b', real=True)
+    
+    # 2. Entrada de usuario
+    func_input = input("Ingresa tu función f(x) (ejemplo: x**3, exp(x), 1/x): ")
+    try:
+        f_expr = sp.sympify(func_input)
+    except:
+        print("Error: Formato de función no válido.")
+        return
+
+    orden = int(input("Orden de precisión de la serie (recomendado 6): ") or 6)
+
+    # 3. Lógica del Operador Ariel/Vargas (Metodología de 3 Pasos)
+    # Paso 1 y 2: Extensión compleja y cociente incremental
+    f_complex = f_expr.subs(x, x + sp.I * b).series(b, 0, orden).removeO()
+    vargas_op = sp.simplify((f_complex - f_expr) / (sp.I * b))
+    
+    # Paso 3: Separación por paridad
+    asimetria = sp.re(vargas_op) # Lo que el límite de Cauchy pierde
+    clasica = sp.im(vargas_op)   # Lo que converge a la derivada
+    
+    # 4. Resultados
+    print("\n" + "="*50)
+    print(f"ANÁLISIS ESTRUCTURAL DE: {f_expr}")
+    print("-" * 50)
+    print(f"PARTE REAL (Información de Asimetría/Vecindad):")
+    print(asimetria)
+    print("\nPARTE IMAGINARIA (Tendencia Clásica):")
+    print(clasica)
+    print("="*50)
+    
+    # 5. Prueba de Consistencia
+    print(f"\nVerificación: Si b -> 0, la asimetría debería ser la derivada clásica.")
+    print(f"Derivada Clásica Calculada: {sp.diff(f_expr, x)}")
+
+if __name__ == "__main__":
+    vargas_analyzer()
