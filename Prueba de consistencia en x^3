@@ -1,0 +1,34 @@
+import sympy as sp
+
+# Definimos las variables simbólicas
+x = sp.Symbol('x', real=True)
+b = sp.Symbol('b', real=True) # Escala de la vecindad (tu memoria de escala)
+
+# Definimos la función f(x) = x^3
+f = x**3
+
+# 1. Extensión al plano complejo: f(x + ib)
+f_complex = (x + sp.I * b)**3
+
+# 2. Aplicamos el Cociente Incremental Complejo (Operador Ariel / Vargas)
+# [f(x + ib) - f(x)] / ib
+vargas_op = sp.simplify((f_complex - f) / (sp.I * b))
+
+# 3. Separación por paridad (Paso 3 de tu metodología)
+# Parte Real (Términos pares): Información de vecindad/asimetría
+# Parte Imaginaria (Términos impares): Convergencia a la derivada clásica
+real_part = sp.re(vargas_op)
+imag_part = sp.im(vargas_op)
+
+print(f"--- RESULTADOS DEL OPERADOR DE VARGAS PARA f(x) = {f} ---")
+print(f"Expresión Completa: {vargas_op}")
+print(f"Parte Real (Información oculta/Asimetría): {real_part}")
+print(f"Parte Imaginaria (Tendencia Clásica): {imag_part}")
+
+# Evaluación en el punto crítico x = 0
+real_en_cero = real_part.subs(x, 0)
+derivada_clasica = sp.diff(f, x).subs(x, 0)
+
+print(f"\n--- EVALUACIÓN EN x = 0 ---")
+print(f"Derivada de Cauchy (Límite Delta x -> 0): {derivada_clasica}")
+print(f"Operador Vargas (Memoria de Escala b): {real_en_cero}")
