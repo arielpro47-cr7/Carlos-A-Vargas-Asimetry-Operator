@@ -1,0 +1,35 @@
+import sympy as sp
+
+def analizador_universal_vargas(f_expr, var, b_sym):
+    # Paso 1 y 2: Extensión compleja y cociente incremental
+    # Usamos series de Taylor para que funcione con funciones complejas (sin, exp, log)
+    f_complex_approx = f_expr.subs(var, var + sp.I * b_sym).series(b_sym, 0, 6).removeO()
+    vargas_op = sp.simplify((f_complex_approx - f_expr) / (sp.I * b_sym))
+    
+    # Paso 3: Separación por paridad
+    real_info = sp.re(vargas_op) # Asimetría / Información oculta
+    imag_info = sp.im(vargas_op) # Tendencia Clásica
+    
+    return real_info, imag_info
+
+# Definimos variables
+x = sp.Symbol('x', real=True)
+b = sp.Symbol('b', real=True)
+
+# LISTA DE FUNCIONES PARA PROBAR (Cualquier función sirve aquí)
+funciones = {
+    "Exponencial (e^x)": sp.exp(x),
+    "Trigonométrica (sin x)": sp.sin(x),
+    "Potencial Gravitatorio (1/x)": 1/x
+}
+
+resultados = {}
+for nombre, f in funciones.items():
+    asimetria, clasica = analizador_universal_vargas(f, x, b)
+    resultados[nombre] = {"Real (Asimetría)": asimetria, "Imag (Clásica)": clasica}
+
+# Mostramos los resultados
+for nombre, res in resultados.items():
+    print(f"--- Función: {nombre} ---")
+    print(f"Parte Real (Información que el límite de Cauchy tira): {res['Real (Asimetría)']}")
+    print(f"Parte Imaginaria (Lo que Newton/Cauchy ven): {res['Imag (Clásica)']}\n")
