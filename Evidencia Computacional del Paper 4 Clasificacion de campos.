@@ -1,0 +1,40 @@
+import sympy as sp
+
+class AsymmetryOperator:
+    def __init__(self, precision=6):
+        self.b = sp.Symbol('b', real=True)
+        self.precision = precision
+
+    def classify_field(self, f, var):
+        # Taylor pre-límite
+        expansion = f.subs(var, var + self.b).series(self.b, 0, self.precision).removeO()
+        # Analizamos términos en b
+        poly = sp.Poly(expansion, self.b)
+        terms = poly.terms() # Lista de (exponente, coeficiente)
+        
+        # Filtramos el término b^0 (valor puntual) y buscamos el primer b^n no nulo
+        # nd es el orden dominante según Paper 4
+        dominant_terms = [t for t in terms if t[0][0] > 0]
+        if not dominant_terms:
+            return "Uniform Field (No variation)"
+        
+        # El orden dominante es el exponente más bajo mayor a 0
+        nd = min(t[0][0] for t in dominant_terms)
+        
+        parity = "Even" if nd % 2 == 0 else "Odd"
+        regime = "Symmetric (Classical)" if nd == 1 else "Asymmetric (Latent)"
+        
+        return {"Order (nd)": nd, "Parity": parity, "Regime": regime}
+
+# --- PRUEBA ---
+v = AsymmetryOperator()
+x = sp.Symbol('x')
+
+test_cases = {
+    "Parábola (x^2)": x**2,
+    "Seno (sin x)": sp.sin(x),
+    "Singularidad (1/x)": 1/x
+}
+
+for name, f in test_cases.items():
+    print(f"Campo: {name} -> {v.classify_field(f, x)}")
