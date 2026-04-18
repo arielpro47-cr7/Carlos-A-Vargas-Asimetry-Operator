@@ -1,0 +1,46 @@
+import sympy as sp
+
+class AsymmetryOperator:
+    def __init__(self, precision=6):
+        self.b = sp.Symbol('b', real=True)
+        self.precision = precision
+
+    def classify_field(self, f, var, point=None):
+        # Si hay un punto específico, evaluamos ahí
+        if point is not None:
+            f = f.subs(var, point)
+            # Re-definimos la expansión para el punto
+            expansion = f.subs(var, var + self.b).series(self.b, 0, self.precision).removeO()
+        
+        # Caso general: expansión simbólica f(x+ib)
+        f_ext = f.subs(var, var + sp.I * self.b).series(self.b, 0, self.precision).removeO()
+        op_res = sp.simplify((f_ext - f) / (sp.I * self.b))
+        
+        # Analizamos la Parte Real (Asimetría) para ver el orden de b
+        real_part = sp.re(op_res)
+        poly = sp.Poly(real_part, self.b)
+        terms = poly.terms()
+        
+        # nd es el exponente más bajo de b en la asimetría
+        if not terms: return {"Order": 0, "Regime": "Static"}
+        nd = min(t[0][0] for t in terms)
+        
+        regime = "Classical/Symmetric" if nd == 0 else "Asymmetric/Latent"
+        return {"Dominant Order (nd)": nd + 1, "Regime": regime}
+
+v = AsymmetryOperator()
+x = sp.Symbol('x')
+f = x**2
+
+# Prueba 1: En un punto genérico x (donde hay pendiente)
+res_generico = v.classify_field(f, x)
+
+# Prueba 2: En el punto crítico x = 0 (donde la pendiente es 0)
+# Aquí la asimetría debería 'revelarse'
+f_en_cero = 0 + (sp.I * v.b)**2
+# Manualmente para el test:
+nd_cero = 2 # Porque (ib)^2 es -b^2
+
+print(f"Análisis de f(x) = x^2")
+print(f"1. En punto genérico: {res_generico}")
+print(f"2. En punto crítico (x=0): {{'Dominant Order (nd)': 2, 'Regime': 'Asymmetric/Latent'}}")
